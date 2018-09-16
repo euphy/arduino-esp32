@@ -39,12 +39,17 @@ public:
 
   void attach(float seconds, callback_t callback)
   {
-    _attach_ms(seconds * 1000, true, reinterpret_cast<callback_with_arg_t>(callback), 0);
+    _attach_micros(seconds * 1000000, true, reinterpret_cast<callback_with_arg_t>(callback), 0);
   }
 
   void attach_ms(uint32_t milliseconds, callback_t callback)
   {
-    _attach_ms(milliseconds, true, reinterpret_cast<callback_with_arg_t>(callback), 0);
+    _attach_micros(milliseconds * 1000, true, reinterpret_cast<callback_with_arg_t>(callback), 0);
+  }
+
+  void attach_micros(uint32_t microseconds, callback_t callback)
+  {
+    _attach_micros(microseconds, true, reinterpret_cast<callback_with_arg_t>(callback), 0);
   }
 
   template<typename TArg>
@@ -55,7 +60,7 @@ public:
     // static_cast for smaller integer types,
     // reinterpret_cast + const_cast for pointer types
     uint32_t arg32 = (uint32_t)arg;
-    _attach_ms(seconds * 1000, true, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+    _attach_micros(seconds * 1000000, true, reinterpret_cast<callback_with_arg_t>(callback), arg32);
   }
 
   template<typename TArg>
@@ -63,17 +68,30 @@ public:
   {
     static_assert(sizeof(TArg) <= sizeof(uint32_t), "attach_ms() callback argument size must be <= 4 bytes");
     uint32_t arg32 = (uint32_t)arg;
-    _attach_ms(milliseconds, true, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+    _attach_micros(milliseconds * 1000, true, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+  }
+
+  template<typename TArg>
+  void attach_micros(uint32_t microseconds, void (*callback)(TArg), TArg arg)
+  {
+    static_assert(sizeof(TArg) <= sizeof(uint32_t), "attach_ms() callback argument size must be <= 4 bytes");
+    uint32_t arg32 = (uint32_t)arg;
+    _attach_micros(microseconds, true, reinterpret_cast<callback_with_arg_t>(callback), arg32);
   }
 
   void once(float seconds, callback_t callback)
   {
-    _attach_ms(seconds * 1000, false, reinterpret_cast<callback_with_arg_t>(callback), 0);
+    _attach_micros(seconds * 1000000, false, reinterpret_cast<callback_with_arg_t>(callback), 0);
   }
 
   void once_ms(uint32_t milliseconds, callback_t callback)
   {
-    _attach_ms(milliseconds, false, reinterpret_cast<callback_with_arg_t>(callback), 0);	
+    _attach_micros(milliseconds * 1000, false, reinterpret_cast<callback_with_arg_t>(callback), 0);	
+  }
+
+  void once_micros(uint32_t microseconds, callback_t callback)
+  {
+    _attach_micros(microseconds, false, reinterpret_cast<callback_with_arg_t>(callback), 0);	
   }
 
   template<typename TArg>
@@ -81,7 +99,7 @@ public:
   {
     static_assert(sizeof(TArg) <= sizeof(uint32_t), "attach() callback argument size must be <= 4 bytes");
     uint32_t arg32 = (uint32_t)(arg);
-    _attach_ms(seconds * 1000, false, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+    _attach_micros(seconds * 1000000, false, reinterpret_cast<callback_with_arg_t>(callback), arg32);
   }
 
   template<typename TArg>
@@ -89,14 +107,22 @@ public:
   {
     static_assert(sizeof(TArg) <= sizeof(uint32_t), "attach_ms() callback argument size must be <= 4 bytes");
     uint32_t arg32 = (uint32_t)(arg);
-    _attach_ms(milliseconds, false, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+    _attach_micros(milliseconds * 1000, false, reinterpret_cast<callback_with_arg_t>(callback), arg32);
+  }
+
+  template<typename TArg>
+  void once_micros(uint32_t microseconds, void (*callback)(TArg), TArg arg)
+  {
+    static_assert(sizeof(TArg) <= sizeof(uint32_t), "attach_ms() callback argument size must be <= 4 bytes");
+    uint32_t arg32 = (uint32_t)(arg);
+    _attach_micros(microseconds, false, reinterpret_cast<callback_with_arg_t>(callback), arg32);
   }
 
   void detach();
   bool active();
 
 protected:	
-  void _attach_ms(uint32_t milliseconds, bool repeat, callback_with_arg_t callback, uint32_t arg);
+  void _attach_micros(uint32_t microseconds, bool repeat, callback_with_arg_t callback, uint32_t arg);
 
 
 protected:
